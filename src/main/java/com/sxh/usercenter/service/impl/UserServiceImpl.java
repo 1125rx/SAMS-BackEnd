@@ -3,6 +3,8 @@ package com.sxh.usercenter.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.sxh.usercenter.Mapper.UserMapper;
 import com.sxh.usercenter.Model.domain.User;
 import com.sxh.usercenter.service.UserService;
@@ -15,7 +17,10 @@ import org.springframework.util.DigestUtils;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -42,7 +47,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
 
     @Override
-    /**
+    /*
      * @Description: 更改账户密码
      * @Param: [userAccount, userPassword, checkPassword]
      * @return:
@@ -272,11 +277,32 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (CollectionUtils.isEmpty(tagNameList)){
             throw new RuntimeException();
         }
+        /*
+            方法一：通过sql语句进行查询
+        */
+//        QueryWrapper<User> queryWrapper=new QueryWrapper<>();
+//        for(String tagName: tagNameList){
+//            queryWrapper.like("tag",tagName);
+//        }
+//        List<User> list=userMapper.selectList(queryWrapper);
+//        return list.stream().map(this::getSafetyUser).collect(Collectors.toList());
+        /*
+            方法二：先查询所有的用户，再将用户信息转换为json，对json信息进行匹配
+        * */
         QueryWrapper<User> queryWrapper=new QueryWrapper<>();
-        for(String tagName: tagNameList){
-            queryWrapper.like("tag",tagName);
-        }
-        List<User> list=userMapper.selectList(queryWrapper);
-        return list.stream().map(this::getSafetyUser).collect(Collectors.toList());
+        List<User> userList=userMapper.selectList(queryWrapper);
+        Gson gson=new Gson();
+        return userList.stream().filter(user -> {
+           String tagStr=user.getTag();
+           if (StringUtils.isBlank(tagStr))
+               return false;
+            Set<String> tagNameSet=gson.fromJson(tagStr,new TypeToken<Set<String>>(){}.getType());
+            tagNameSet= Optional.ofNullable(tagNameSet).orElse(new HashSet<>());
+            for (String tagName: tagNameList){
+                if (!tagNameSet.contains(tagName))
+                    return false;
+            }
+            return true;
+        }).map(this::getSafetyUser).collect(Collectors.toList());
     }
 }

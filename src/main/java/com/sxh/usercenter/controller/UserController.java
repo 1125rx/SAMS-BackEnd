@@ -36,7 +36,7 @@ public class UserController {
     private UserMapper userMapper;
 
     @PostMapping("/register")
-    /**
+    /*
     * @Description: 注册接口
     * @Param: [userRegisterRequest, request]
     * @return:
@@ -58,7 +58,7 @@ public class UserController {
         return userService.userRegister(userAccount, userPassword, checkPassword);
     }
     @PostMapping("/changePassword")
-    /**
+    /*
     * @Description: 更改用户密码接口
     * @Param: [changeUserPasswordRequest, request]
     * @return:
@@ -83,7 +83,7 @@ public class UserController {
 
 
     @PostMapping("/login")
-    /**
+    /*
     * @Description: 登录接口
     * @Param: [userLoginRequest, request]
     * @return: User
@@ -132,7 +132,7 @@ public class UserController {
     }   
 
     @PostMapping("/resetPassword")
-    /**
+    /*
     * @Description: 重置用户密码
     * @Param: [userAccount, request]
     * @return:
@@ -146,8 +146,8 @@ public class UserController {
     }
 
     @GetMapping("/current")
-    /**
-    * @Description: 获取当前登录用户信息
+    /*
+     @Description: 获取当前登录用户信息
     * @Param: [request]
     * @return:
     * @Author: SXH
@@ -201,7 +201,7 @@ public class UserController {
 //    }
 
     @PostMapping("/logout")
-    /**
+    /*
     * @Description: 退出当前登录接口
     * @Param: [request]
     * @return:
@@ -215,7 +215,7 @@ public class UserController {
 
     }
     @PostMapping("/updateUser")
-    /**
+    /*
     * @Description: 更新用户数据
     * @Param: [updateUserRequest]
     * @return:
