@@ -32,7 +32,7 @@ public interface UserService extends IService<User> {
     //重置用户密码
     boolean resetUserPassword(String userAccount);
     //更新用户信息
-    long updateUser(String userAccount,String userName,String gender,String userMajor,int userClass);
+//    long updateUser(String userAccount,String userName,String gender,String userMajor,int userClass);
     //根据标签搜索用户
     List<User> searchUsersByTags(List<String> tagNameList);
 }

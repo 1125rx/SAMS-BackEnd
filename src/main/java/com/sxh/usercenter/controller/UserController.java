@@ -214,20 +214,20 @@ public class UserController {
         return userService.userLogout(request);
 
     }
-    @PostMapping("/updateUser")
-    /*
-    * @Description: 更新用户数据
-    * @Param: [updateUserRequest]
-    * @return:
-    * @Author: SXH
-    * @Date: 2022/9/16
-    */
-    public long updateUserController(@RequestBody UpdateUserRequest updateUserRequest){
-        String userAccount = updateUserRequest.getUserAccount();
-        String userName = updateUserRequest.getUserName();
-        String gender = updateUserRequest.getGender();
-        String userMajor = updateUserRequest.getUserMajor();
-        int userClass = updateUserRequest.getUserClass();
-        return userService.updateUser(userAccount,userName,gender,userMajor,userClass);
-    }
+//    @PostMapping("/updateUser")
+//    /*
+//    * @Description: 更新用户数据
+//    * @Param: [updateUserRequest]
+//    * @return:
+//    * @Author: SXH
+//    * @Date: 2022/9/16
+//    */
+//    public long updateUserController(@RequestBody UpdateUserRequest updateUserRequest){
+//        String userAccount = updateUserRequest.getUserAccount();
+//        String userName = updateUserRequest.getUserName();
+//        String gender = updateUserRequest.getGender();
+//        String userMajor = updateUserRequest.getUserMajor();
+//        int userClass = updateUserRequest.getUserClass();
+//        return userService.updateUser(userAccount,userName,gender,userMajor,userClass);
+//    }
 }

@@ -7,6 +7,8 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.sxh.usercenter.Mapper.UserMapper;
 import com.sxh.usercenter.Model.domain.User;
+import com.sxh.usercenter.common.ErrorCode;
+import com.sxh.usercenter.exception.BusinessException;
 import com.sxh.usercenter.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -238,14 +240,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     }
 
-    @Override
+//    @Override
     /**
      * @Description: 更新用户数据
      * @Param: [userAccount, userName, gender, userMajor, userClass]
      * @return:
      * @Author: SXH
      * @Date: 2022/9/6
-     */
+     *
     public long updateUser(String userAccount, String userName, String gender, String userMajor, int userClass) {
         UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("userAccount",userAccount);
@@ -275,7 +277,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
      */
     public List<User> searchUsersByTags(List<String> tagNameList) {
         if (CollectionUtils.isEmpty(tagNameList)){
-            throw new RuntimeException();
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         /*
             方法一：通过sql语句进行查询
