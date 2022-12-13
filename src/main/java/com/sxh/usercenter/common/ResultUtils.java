@@ -9,7 +9,7 @@ package com.sxh.usercenter.common;
 public class ResultUtils {
 
     public static <T> BaseResponse<T> success(T data){
-        return new BaseResponse<>(0,data,"ok");
+        return new BaseResponse<>(0,data,"ok","请求成功");
     }
 
     public static BaseResponse error(ErrorCode errorCode){
@@ -25,6 +25,8 @@ public class ResultUtils {
     }
 
     public static BaseResponse error(ErrorCode errorCode,String description){
-        return new BaseResponse<>(errorCode.getCode(),errorCode.getMessage(),description);
+        return new BaseResponse<>(errorCode.getCode(),null,errorCode.getMessage(),description);
     }
+
+
 }

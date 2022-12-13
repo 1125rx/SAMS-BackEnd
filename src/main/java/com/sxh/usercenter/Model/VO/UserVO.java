@@ -1,24 +1,20 @@
-package com.sxh.usercenter.Model.domain;
+package com.sxh.usercenter.Model.VO;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
+import java.util.List;
 
 /**
  * 用户
  * @TableName user
  */
-@TableName(value ="user")
 @Data
-public class User implements Serializable {
+public class UserVO implements Serializable {
     /**
      * id
      */
-    @TableId(type = IdType.AUTO)
     private long userId;
 
     /**
@@ -40,17 +36,10 @@ public class User implements Serializable {
      * 性别
      */
     private String gender;
-
-    /**
-     * 密码
-     */
-    private String userPassword;
-
     /**
      * 电话
      */
     private String userPhone;
-
     /**
      * 邮箱
      */
@@ -62,12 +51,27 @@ public class User implements Serializable {
     private Integer userStatus;
 
     /**
+     * 用户地址
+     */
+    private String userLocation;
+
+    /**
+     * 用户描述
+     */
+    private String userDescription;
+
+    /**
+     *
+     */
+    private String userSchool;
+
+    /**
      * 创建时间
      */
     private Date createTime;
 
     /**
-     * 
+     *
      */
     private Date updateTime;
 
@@ -89,28 +93,12 @@ public class User implements Serializable {
     /**
      * 标签json列表
      */
-    private String tag;
-
-    /**
-     * 用户地址
-     */
-    private String userLocation;
-
-    /**
-     * 用户描述
-     */
-    private String userDescription;
-
-    /**
-     * 用户学校
-     */
-    private String userSchool;
+    private List<String> tag;
 
     /**
      * 用户年龄
      */
     private Integer userAge;
 
-    @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

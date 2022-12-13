@@ -1,4 +1,4 @@
-package com.sxh.usercenter.Model.request;
+package com.sxh.usercenter.Model.request.user;
 
 import lombok.Data;
 
@@ -14,9 +14,9 @@ import java.io.Serializable;
  **/
 @Data
 public class SetNewUserRequest implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 323066308972153445L;
 
+    @Serial
+    private static final long serialVersionUID = -2466923169607758527L;
     private String userAccount;
     private String userName;
     private String gender;

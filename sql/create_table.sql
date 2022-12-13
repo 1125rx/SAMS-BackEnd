@@ -19,3 +19,35 @@ create table user
 )
     comment '用户';
 
+    create table team
+(
+    t_id          bigint auto_increment comment 'id' primary key,
+    t_name        varchar(256)       not null comment '队伍名称',
+    t_description varchar(1024) null comment '描述',
+    t_maxNum      int      default 1 not null comment '最大人数',
+    t_num         int      default 1 not null comment '当前人数',
+    t_expireTime  datetime null comment '过期时间',
+    t_userId      bigint comment '用户id（队长 id）',
+    t_status      int      default 0 not null comment '0 - 公开，1 - 私有，2 - 加密',
+    t_password    varchar(512) null comment '密码',
+    t_createTime  datetime default CURRENT_TIMESTAMP null comment '创建时间',
+    t_updateTime  datetime default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP,
+    t_isDelete    tinyint  default 0 not null comment '是否删除'
+) comment '队伍';
+
+create table user_team
+(
+    id         bigint auto_increment comment 'id'
+        primary key,
+    userId     bigint comment '用户id',
+    teamId     bigint comment '队伍id',
+    joinTime   datetime null comment '加入时间',
+    createTime datetime default CURRENT_TIMESTAMP null comment '申请时间',
+    updateTime datetime default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP,
+    isDelete   tinyint  default 0 not null comment '是否删除',
+    details    varchar(1024) comment '申请描述',
+    applyStatus tinyint default 0 comment '申请状态 0-待申请 1-通过申请 2-拒绝申请'
+) comment '用户队伍关系';
+
+
+

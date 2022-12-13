@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sxh.usercenter.Mapper.TeamMapper">
+
+    <resultMap id="BaseResultMap" type="com.sxh.usercenter.Model.domain.Team">
+            <id property="t_id" column="t_id" jdbcType="BIGINT"/>
+            <result property="t_name" column="t_name" jdbcType="VARCHAR"/>
+            <result property="t_description" column="t_description" jdbcType="VARCHAR"/>
+            <result property="t_maxNum" column="t_maxNum" jdbcType="INTEGER"/>
+            <result property="t_num" column="t_num" jdbcType="INTEGER"/>
+            <result property="t_expireTime" column="t_expireTime" jdbcType="TIMESTAMP"/>
+            <result property="t_userId" column="t_userId" jdbcType="BIGINT"/>
+            <result property="t_status" column="t_status" jdbcType="INTEGER"/>
+            <result property="t_password" column="t_password" jdbcType="VARCHAR"/>
+            <result property="t_createTime" column="t_createTime" jdbcType="TIMESTAMP"/>
+            <result property="t_updateTime" column="t_updateTime" jdbcType="TIMESTAMP"/>
+            <result property="t_isDelete" column="t_isDelete" jdbcType="TINYINT"/>
+            <result property="t_avatarUrl" column="t_avatarUrl" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        t_id,t_name,t_description,
+        t_maxNum,t_num,t_expireTime,
+        t_userId,t_status,t_password,
+        t_createTime,t_updateTime,t_isDelete,
+        t_avatarUrl
+    </sql>
+</mapper>

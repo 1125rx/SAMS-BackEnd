@@ -1,5 +1,6 @@
-package com.sxh.usercenter.Model.request;
+package com.sxh.usercenter.Model.request.user;
 
+import io.swagger.models.auth.In;
 import lombok.Data;
 
 import java.io.Serial;
@@ -17,8 +18,11 @@ public class UpdateUserRequest implements Serializable {
     private static final long serialVersionUID = 6920354526230759127L;
 
     private String userAccount;
+    private Integer userAge;
     private String userName;
     private String gender;
-    private String userMajor;
-    private int userClass;
+    private String userPhone;
+    private String userLocation;
+    private String userDescription;
+    private String userSchool;
 }

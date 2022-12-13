@@ -1,4 +1,4 @@
-package com.sxh.usercenter.Model.request;
+package com.sxh.usercenter.Model.request.user;
 
 import lombok.Data;
 

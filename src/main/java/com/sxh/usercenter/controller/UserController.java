@@ -2,22 +2,22 @@ package com.sxh.usercenter.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.sxh.usercenter.Mapper.UserMapper;
+import com.sxh.usercenter.Model.VO.UserVO;
 import com.sxh.usercenter.Model.domain.User;
-import com.sxh.usercenter.Model.request.ChangeUserPasswordRequest;
-import com.sxh.usercenter.Model.request.UpdateUserRequest;
-import com.sxh.usercenter.Model.request.UserLoginRequest;
-import com.sxh.usercenter.Model.request.UserRegisterRequest;
+import com.sxh.usercenter.Model.dto.UserQuery;
+import com.sxh.usercenter.Model.request.user.*;
+import com.sxh.usercenter.common.BaseResponse;
+import com.sxh.usercenter.common.ErrorCode;
+import com.sxh.usercenter.common.ResultUtils;
+import com.sxh.usercenter.exception.BusinessException;
 import com.sxh.usercenter.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static com.sxh.usercenter.constant.userConstant.USER_LOGIN_STATE;
 
 /**
  * @program: usercenter
@@ -43,19 +43,16 @@ public class UserController {
     * @Author: SXH
     * @Date: 2022/7/28
     */
-    public Long userRegister(@RequestBody UserRegisterRequest userRegisterRequest, HttpServletRequest request){
+    public BaseResponse<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest, HttpServletRequest request){
         if (userRegisterRequest==null)
             return null;
-        Object userObj=request.getSession().getAttribute(USER_LOGIN_STATE);
-        User currentUser=(User) userObj;
-        if (currentUser==null)
-            return null;
-        String userAccount=currentUser.getUserAccount();
+        String userAccount=userRegisterRequest.getUserAccount();
         String userPassword=userRegisterRequest.getUserPassword();
         String checkPassword=userRegisterRequest.getCheckPassword();
         if (StringUtils.isAnyBlank(userAccount,userPassword,checkPassword))
             return null;
-        return userService.userRegister(userAccount, userPassword, checkPassword);
+        long re = userService.userRegister(userAccount, userPassword, checkPassword);
+        return ResultUtils.success(re);
     }
     @PostMapping("/changePassword")
     /*
@@ -65,20 +62,20 @@ public class UserController {
     * @Author: SXH
     * @Date: 2022/9/4
     */
-    public long changePassword(@RequestBody ChangeUserPasswordRequest changeUserPasswordRequest, HttpServletRequest request){
+    public BaseResponse<Long> changePassword(@RequestBody ChangeUserPasswordRequest changeUserPasswordRequest, HttpServletRequest request){
         if (changeUserPasswordRequest == null)
-            return -4;
-        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
-        User currentUser = (User) userObj;
+           throw new BusinessException(ErrorCode.PARAMS_ERROR,"参数为空");
+        User currentUser=userService.getLoginUser(request);
         if (currentUser == null)
-            return -5;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"获取用户信息失败");
         String userAccount=currentUser.getUserAccount();
         String oldPassword = changeUserPasswordRequest.getOldPassword();
         String newPassword = changeUserPasswordRequest.getNewPassword();
         String checkPassword = changeUserPasswordRequest.getCheckPassword();
         if (StringUtils.isAnyBlank(userAccount,oldPassword,newPassword,checkPassword))
-            return -6;
-        return userService.changeUserPassword(userAccount,oldPassword,newPassword,checkPassword);
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"参数为空");
+        long l = userService.changeUserPassword(userAccount, oldPassword, newPassword, checkPassword);
+        return ResultUtils.success(l);
     }
 
 
@@ -90,45 +87,60 @@ public class UserController {
     * @Author: SXH
     * @Date: 2022/11/1
     */
-    public User userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request){
+    public BaseResponse<User> userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request){
         if (userLoginRequest==null)
-            return null;
+            return ResultUtils.error(ErrorCode.PARAMS_ERROR);
         String userAccount=userLoginRequest.getUserAccount();
         String userPassword=userLoginRequest.getUserPassword();
         String type=userLoginRequest.getType();
         if (StringUtils.isAnyBlank(userAccount,userPassword))
-            return null;
-        if (type.equals("account"))
-            return userService.userLogin(userAccount,userPassword,request);
+            return ResultUtils.error(ErrorCode.PARAMS_ERROR);
+        if (type.equals("account")){
+            User user=userService.userLogin(userAccount,userPassword,request);
+            if(user == null)
+                return ResultUtils.error(ErrorCode.PARAMS_ERROR,"错误的账号或密码");
+            else
+                return ResultUtils.success(user);
+        }
         else
         {
             QueryWrapper<User> queryWrapper=new QueryWrapper<>();
             User user=userMapper.selectOne(queryWrapper.eq("email",userAccount));
-            return userService.userLogin(user.getUserAccount(),userPassword,request);
+            User result=userService.userLogin(user.getUserAccount(),userPassword,request);
+            return ResultUtils.success(result);
         }
     }
 
     //查询用户接口
-    @GetMapping("/search")
-    public List<User> searchUser(String userAccount,String userName, HttpServletRequest request){
+    @PostMapping("/search")
+    public BaseResponse<List<UserVO>> searchUser(@RequestBody UserQuery userQuery, HttpServletRequest request){
         if (!isTeacher(request))
-            return new ArrayList<>();
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        if (userQuery==null)
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        String userAccount=userQuery.getUserAccount();
+        String userName=userQuery.getUserName();
+        String gender=userQuery.getGender();
         QueryWrapper<User> queryWrapper=new QueryWrapper<>();
         if (StringUtils.isNotBlank(userAccount))
             queryWrapper.like("userAccount",userAccount);
         if (StringUtils.isNotBlank(userName))
             queryWrapper.like("userName",userName);
-        queryWrapper.eq("userRole",1);
+        if (StringUtils.isNotBlank(gender))
+            queryWrapper.eq("gender",gender);
+        queryWrapper.eq("userRole",0);
         List<User> userList=userService.list(queryWrapper);
-        return userList.stream().map(resUser -> userService.getSafetyUser(resUser)).collect(Collectors.toList());
+        List<UserVO> list = userList.stream().map(resUser -> userService.getUserVO(resUser)).collect(Collectors.toList());
+        return ResultUtils.success(list);
     }
 
     //删除用户接口
     @PostMapping("/delete")
-    public boolean deleteUser(@RequestBody String userAccount,HttpServletRequest request){
+    public BaseResponse<Boolean> deleteUser(@RequestBody String userAccount,HttpServletRequest request){
         if (!isTeacher(request))
-            return false;
-        return userService.userDelete(userAccount);
+            throw new BusinessException(ErrorCode.NO_AUTH);
+        boolean delete = userService.userDelete(userAccount);
+        return ResultUtils.success(delete);
     }   
 
     @PostMapping("/resetPassword")
@@ -139,10 +151,11 @@ public class UserController {
     * @Author: SXH
     * @Date: 2022/9/4
     */
-    public boolean resetPassword(@RequestBody String userAccount, HttpServletRequest request){
+    public BaseResponse<Boolean> resetPassword(@RequestBody String userAccount, HttpServletRequest request){
         if (!isTeacher(request))
-            return false;
-        return userService.resetUserPassword(userAccount);
+            throw new BusinessException(ErrorCode.NO_AUTH);
+        boolean b = userService.resetUserPassword(userAccount);
+        return ResultUtils.success(b);
     }
 
     @GetMapping("/current")
@@ -153,14 +166,13 @@ public class UserController {
     * @Author: SXH
     * @Date: 2022/7/28
     */
-    public User getCurrentUser(HttpServletRequest request){
-        Object userObj=request.getSession().getAttribute(USER_LOGIN_STATE);
-        User currentUser=(User) userObj;
+    public BaseResponse<UserVO> getCurrentUser(HttpServletRequest request){
+        User currentUser=userService.getLoginUser(request);
         if (currentUser==null)
-            return null;
+            throw new BusinessException(ErrorCode.NOT_LOGIN);
         long userId=currentUser.getUserId();
         User user=userService.getById(userId);
-        return userService.getSafetyUser(user);
+        return ResultUtils.success(userService.getUserVO(user));
     }
 
     /**
@@ -172,34 +184,9 @@ public class UserController {
     */
 
     public boolean isTeacher(HttpServletRequest request){
-        Object userObj=request.getSession().getAttribute(USER_LOGIN_STATE);
-        User user=(User)userObj;
+        User user=userService.getLoginUser(request);
         return user != null && user.getUserRole() != 1;
     }
-
-////    @PostMapping("/addUser")
-////    /**
-//    * @Description: 添加新的用户信息
-//    * @Param: [request] 添加新用户请求体
-//    * @return:
-//    * @Author: SXH
-//    * @Date: 2022/7/28
-//    */
-//    public Long createUser(@RequestBody SetNewUserRequest request, HttpServletRequest httpServletRequest){
-//        if (request==null)
-//            return null;
-//        String userAccount=request.getUserAccount();
-//        String userName=request.getUserName();
-//        String gender=request.getGender();
-//        int userClass=request.getUserClass();
-//        Object userObj=httpServletRequest.getSession().getAttribute(USER_LOGIN_STATE);
-//        User user=(User)userObj;
-//        String userMajor = user.getUserMajor();
-//        if (StringUtils.isAnyBlank(userAccount,userName,userMajor,gender))
-//            return null;
-//        return userService.setNewUser(userAccount, userName, gender, userMajor, userClass);
-//    }
-
     @PostMapping("/logout")
     /*
     * @Description: 退出当前登录接口
@@ -208,26 +195,58 @@ public class UserController {
     * @Author: SXH
     * @Date: 2022/7/28
     */
-    public Integer userLogout(HttpServletRequest request){
+    public BaseResponse<Integer> userLogout(HttpServletRequest request){
         if (request==null)
-            return null;
-        return userService.userLogout(request);
-
+            throw new BusinessException(ErrorCode.NOT_LOGIN);
+        int i = userService.userLogout(request);
+        return ResultUtils.success(i);
     }
-//    @PostMapping("/updateUser")
-//    /*
-//    * @Description: 更新用户数据
-//    * @Param: [updateUserRequest]
-//    * @return:
-//    * @Author: SXH
-//    * @Date: 2022/9/16
-//    */
-//    public long updateUserController(@RequestBody UpdateUserRequest updateUserRequest){
-//        String userAccount = updateUserRequest.getUserAccount();
-//        String userName = updateUserRequest.getUserName();
-//        String gender = updateUserRequest.getGender();
-//        String userMajor = updateUserRequest.getUserMajor();
-//        int userClass = updateUserRequest.getUserClass();
-//        return userService.updateUser(userAccount,userName,gender,userMajor,userClass);
+
+    @PostMapping("/update")
+    public BaseResponse<Integer> userUpdate(@RequestBody UpdateUserRequest updateUserRequest, HttpServletRequest request){
+        if (updateUserRequest == null)
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        User loginUser=userService.getLoginUser(request);
+        int updateUser = userService.updateUser(updateUserRequest, loginUser);
+        return ResultUtils.success(updateUser);
+    }
+    @GetMapping("/getById")
+    public BaseResponse<User> getUserByUserId(int userId){
+        User user=userService.getById(userId);
+        if (user == null)
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"未检索到用户数据");
+        return ResultUtils.success(user);
+    }
+    @PostMapping("/match")
+    public BaseResponse<List<UserVO>> matchUsers(@RequestBody MatchUserRequest matchUserRequest, HttpServletRequest request){
+        if (matchUserRequest==null)
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        long num=matchUserRequest.getNum();
+        if (num <= 0 || num > 20) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User user = userService.getLoginUser(request);
+        return ResultUtils.success(userService.matchUsers(num, user));
+    }
+
+    @PostMapping("/tags")
+    public BaseResponse<Boolean> updateTags(@RequestBody UpdateTagRequest updateTagRequest,HttpServletRequest request){
+        if (request==null)
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        if (updateTagRequest==null)
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        User loginUser = userService.getLoginUser(request);
+        String tags=updateTagRequest.getTags();
+        loginUser.setTag(tags);
+        boolean update = userService.updateById(loginUser);
+        return ResultUtils.success(update);
+    }
+
+//    public List<String> getUserTags(HttpServletRequest request){
+//        User user=userService.getLoginUser(request);
+//        if (user == null)
+//            throw new BusinessException(ErrorCode.PARAMS_ERROR,"未检索到用户数据");
+//        String tag=user.getTag();
+//
 //    }
 }

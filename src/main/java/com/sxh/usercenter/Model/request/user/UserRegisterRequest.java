@@ -1,4 +1,4 @@
-package com.sxh.usercenter.Model.request;
+package com.sxh.usercenter.Model.request.user;
 
 import lombok.Data;
 
@@ -13,9 +13,9 @@ import java.io.Serializable;
  **/
 @Data
 public class UserRegisterRequest implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 323066308972153445L;
 
+    @Serial
+    private static final long serialVersionUID = 1521362975129650787L;
     private String userAccount;
     private String userPassword;
     private String checkPassword;

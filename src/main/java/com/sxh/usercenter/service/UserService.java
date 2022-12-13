@@ -1,7 +1,9 @@
 package com.sxh.usercenter.service;
 
+import com.sxh.usercenter.Model.VO.UserVO;
 import com.sxh.usercenter.Model.domain.User;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.sxh.usercenter.Model.request.user.UpdateUserRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -31,8 +33,19 @@ public interface UserService extends IService<User> {
     long changeUserPassword(String userAccount, String oldPassword, String newPassword, String checkPassword);
     //重置用户密码
     boolean resetUserPassword(String userAccount);
-    //更新用户信息
-//    long updateUser(String userAccount,String userName,String gender,String userMajor,int userClass);
     //根据标签搜索用户
     List<User> searchUsersByTags(List<String> tagNameList);
+
+    User getLoginUser(HttpServletRequest request);
+
+    int updateUser(UpdateUserRequest updateUserRequest, User loginUser);
+
+    UserVO getUserVO(User user);
+
+    List<String> getTagsList(String tagNameList);
+
+    boolean isAdmin(HttpServletRequest request);
+
+    List<UserVO> matchUsers(long num,User loginUser);
+
 }
