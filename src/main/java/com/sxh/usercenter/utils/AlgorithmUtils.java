@@ -87,4 +87,16 @@ public class AlgorithmUtils {
         return d[n][m];
     }
 
+    public static int matchTags(List<String> tags1, List<String> tags2) {
+        int n=0;
+        for (String s1 : tags1) {
+            int min=100;
+            for (String s2 : tags2) {
+                min=Math.min(min, minDistance(s1,s2));
+            }
+            n+=min;
+        }
+        return n;
+    }
+
 }

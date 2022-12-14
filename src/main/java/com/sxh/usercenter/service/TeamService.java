@@ -9,9 +9,9 @@ import com.sxh.usercenter.Model.dto.TeamQuery;
 import com.sxh.usercenter.Model.request.team.TeamJoinRequest;
 import com.sxh.usercenter.Model.request.team.TeamQuitRequest;
 import com.sxh.usercenter.Model.request.team.TeamUpdateRequest;
+import com.sxh.usercenter.Model.request.team.TeamWelcomeRequest;
 
 import java.util.List;
-import java.util.ListResourceBundle;
 
 /**
 * @author sxh
@@ -28,7 +28,13 @@ public interface TeamService extends IService<Team> {
 
     boolean applyJoinTeam(TeamJoinRequest teamJoinRequest, User loginUser);
 
+    boolean welcomeTeam(TeamWelcomeRequest teamWelcomeRequest,User loginUser);
+
+    List<TeamApplyVO> getWelcomeList(User loginUser);
+
     boolean dealApply(Long id, User loginUser, int applyStatus);
+
+    boolean dealWelcome(Long id,User loginUser,int applyStatus);
 
     boolean quitTeam(TeamQuitRequest teamQuitRequest,User loginUser);
 
@@ -36,8 +42,11 @@ public interface TeamService extends IService<Team> {
 
     List<TeamApplyVO> getApplyList(User loginUser);
 
+    List<TeamApplyVO> getMyApplyHistory(User loginUser);
+
     long countTeamUserByTeamId(long teamId);
 
     Team getTeamById(Long teamId);
+
 
 }

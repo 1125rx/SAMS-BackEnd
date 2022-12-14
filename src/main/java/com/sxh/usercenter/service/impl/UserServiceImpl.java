@@ -133,6 +133,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         safeUser.setUserId(user.getUserId());
         safeUser.setUserAccount(user.getUserAccount());
         safeUser.setUserName(user.getUserName());
+        safeUser.setUserAge(user.getUserAge());
+        safeUser.setUserDescription(user.getUserDescription());
+        safeUser.setUserLocation(user.getUserLocation());
+        safeUser.setUserSchool(user.getUserSchool());
         safeUser.setAvatarUrl(user.getAvatarUrl());
         safeUser.setGender(user.getGender());
         safeUser.setUserRole(user.getUserRole());
@@ -388,9 +392,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         queryWrapper.isNotNull("tag");
         List<User> userList = this.list(queryWrapper);
         String tags = loginUser.getTag();
-        Gson gson = new Gson();
-        List<String> tagList = gson.fromJson(tags, new TypeToken<List<String>>() {
-        }.getType());
+        List<String> tagList = this.getTagsList(tags);
         // 用户列表的下标 => 相似度
         List<Pair<User, Long>> list = new ArrayList<>();
         // 依次计算所有用户和当前用户的相似度
@@ -400,15 +402,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             if (StringUtils.isBlank(userTags) || user.getUserId() == loginUser.getUserId()) {
                 continue;
             }
-            List<String> userTagList = gson.fromJson(userTags, new TypeToken<List<String>>() {
-            }.getType());
+            List<String> userTagList = this.getTagsList(userTags);
             // 计算分数
             long distance = AlgorithmUtils.minDistance(tagList, userTagList);
             list.add(new Pair<>(user, distance));
         }
         // 按编辑距离由小到大排序
         List<Pair<User, Long>> topUserPairList = list.stream()
-                .sorted((a, b) -> (int) (a.getValue() - b.getValue()))
+                .sorted((a, b) -> (int) (b.getValue() - a.getValue()))
                 .limit(num)
                 .toList();
         // 原本顺序的 userId 列表
@@ -427,6 +428,5 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             finalUserList.add(this.getUserVO(userIdUserListMap.get(userId).get(0)));
         }
         return finalUserList;
-
     }
 }

@@ -3,6 +3,7 @@ package com.sxh.usercenter.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.sxh.usercenter.Mapper.UserMapper;
 import com.sxh.usercenter.Model.domain.User;
+import com.sxh.usercenter.utils.AlgorithmUtils;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,6 +31,25 @@ class UserServiceTest {
         List<User> userList=userService.searchUsersByTags(tagNames);
         System.out.println(userList);
         Assert.assertNotNull(userList);
+    }
+    @Test
+    void testMatch(){
+        List<String> tags1=Arrays.asList("C");
+        List<String> tags2=Arrays.asList("Java","C");
+        List<String> tags3=Arrays.asList("Java","C++","Python");
+        List<String> tags4=Arrays.asList("C++");
+        System.out.println(AlgorithmUtils.minDistance(tags1,tags2));
+        System.out.println(AlgorithmUtils.minDistance(tags1,tags3));
+        System.out.println(AlgorithmUtils.minDistance(tags1,tags4));
+        System.out.println(AlgorithmUtils.minDistance(tags2,tags3));
+        System.out.println(AlgorithmUtils.matchTags(tags1,tags2));
+        System.out.println(AlgorithmUtils.matchTags(tags1,tags3));
+        System.out.println(AlgorithmUtils.matchTags(tags1,tags4));
+        System.out.println(AlgorithmUtils.matchTags(tags2,tags3));
+        System.out.println(AlgorithmUtils.matchTags(tags2,tags4));
+        System.out.println(AlgorithmUtils.minDistance("c","c++"));
+        System.out.println(AlgorithmUtils.minDistance("c","java"));
+
     }
 
     @Test

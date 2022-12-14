@@ -226,7 +226,8 @@ public class UserController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         User user = userService.getLoginUser(request);
-        return ResultUtils.success(userService.matchUsers(num, user));
+        List<UserVO> userVOS = userService.matchUsers(num, user);
+        return ResultUtils.success(userVOS);
     }
 
     @PostMapping("/tags")

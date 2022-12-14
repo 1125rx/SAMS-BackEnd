@@ -90,6 +90,29 @@ public class TeamController {
         return ResultUtils.success(team);
     }
 
+    @PostMapping("/set/welcome/pass")
+    public BaseResponse<Boolean> passTeamWelcome(@RequestBody TeamWelcomeDealRequest teamWelcomeDealRequest,HttpServletRequest request){
+        User loginUser=userService.getLoginUser(request);
+        UserTeam userTeam=userTeamService.getById(teamWelcomeDealRequest.getId());
+        long teamId = userTeam.getTeamId();
+        int maxNum=teamService.getById(teamId).getT_maxNum();
+        long teamHasJoinNum=teamService.countTeamUserByTeamId(teamId);
+        if (teamHasJoinNum >= maxNum) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"队伍已满");
+        }
+        boolean dealApply = teamService.dealWelcome(teamWelcomeDealRequest.getId(), loginUser, 1);
+        return ResultUtils.success(dealApply);
+    }
+
+    @PostMapping("/set/welcome/refuse")
+    public BaseResponse<Boolean> refuseTeamWelcome(@RequestBody TeamWelcomeDealRequest teamWelcomeDealRequest,HttpServletRequest request){
+        User loginUser = userService.getLoginUser(request);
+        boolean b = teamService.dealWelcome(teamWelcomeDealRequest.getId(), loginUser, 2);
+        return  ResultUtils.success(b);
+    }
+
+
+
     @PostMapping("/set/apply/pass")
     public BaseResponse<Boolean> passTeamApply(@RequestBody TeamApplyDealRequest teamApplyDealRequest,HttpServletRequest request){
         User loginUser = userService.getLoginUser(request);
@@ -175,8 +198,25 @@ public class TeamController {
         return ResultUtils.success(result);
     }
 
+    @PostMapping("/welcome")
+    /*
+    * @Description: 邀请加入队伍
+    * @Param: [teamWelcomeRequest, request]
+    * @return:
+    * @Author: SXH
+    * @Date: 2022/12/14
+    */
+    public BaseResponse<Boolean> welcomeTeamController(@RequestBody TeamWelcomeRequest teamWelcomeRequest, HttpServletRequest request){
+        if (teamWelcomeRequest==null)
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        User loginUser = userService.getLoginUser(request);
+        boolean welcomeTeam = teamService.welcomeTeam(teamWelcomeRequest, loginUser);
+        return ResultUtils.success(welcomeTeam);
+
+    }
+
     @PostMapping("/quit")
-    /**
+    /*
     * @Description: 退出
     * @Param: [teamQuitRequest, request]
     * @return:
@@ -193,7 +233,7 @@ public class TeamController {
     }
 
     @PostMapping("/delete")
-    /**
+    /*
     * @Description: 删除
     * @Param: [deleteRequest, request]
     * @return:
@@ -237,6 +277,21 @@ public class TeamController {
     }
 
 
+    @GetMapping("/list/get/welcome")
+    public BaseResponse<List<TeamApplyVO>> listTeamWelcome(HttpServletRequest request){
+        User loginUser = userService.getLoginUser(request);
+        List<TeamApplyVO> teamApplyVOList = teamService.getWelcomeList(loginUser);
+        return ResultUtils.success(teamApplyVOList);
+    }
+
+    @GetMapping("/list/get/history")
+    public BaseResponse<List<TeamApplyVO>> listMyHistory(HttpServletRequest request){
+        User loginUser = userService.getLoginUser(request);
+        List<TeamApplyVO> myApplyHistory = teamService.getMyApplyHistory(loginUser);
+        return ResultUtils.success(myApplyHistory);
+    }
+
+
 
 
     /**
@@ -246,8 +301,8 @@ public class TeamController {
      * @param request
      * @return
      */
-    @GetMapping("/list/my/join")
-    public BaseResponse<List<TeamUserVO>> listMyJoinTeams(TeamQuery teamQuery, HttpServletRequest request) {
+    @PostMapping("/list/my/join")
+    public BaseResponse<List<TeamUserVO>> listMyJoinTeams(@RequestBody TeamQuery teamQuery, HttpServletRequest request) {
         if (teamQuery == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
