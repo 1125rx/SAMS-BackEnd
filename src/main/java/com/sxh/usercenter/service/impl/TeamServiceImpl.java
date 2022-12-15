@@ -303,12 +303,15 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team>
         long userId = loginUser.getUserId();
         QueryWrapper<UserTeam> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("userId", userId);
-        queryWrapper.ge("applyStatus", 3);
+        queryWrapper.ge("applyStatus", 1);
         List<UserTeam> userTeamList = userTeamService.list(queryWrapper);
         if (userTeamList == null)
             return new ArrayList<>();
         List<TeamApplyVO> teamList = new ArrayList<>();
         for (UserTeam userTeam : userTeamList) {
+            Team team=this.getById(userTeam.getTeamId());
+            if (team.getT_userId() == loginUser.getUserId() && userTeam.getUserId() == loginUser.getUserId())
+                continue;
             TeamApplyVO teamApplyVO = new TeamApplyVO();
             teamApplyVO.setId(userTeam.getId());
             teamApplyVO.setUser(userService.getUserVO(userService.getById(this.getTeamById(userTeam.getTeamId()).getT_userId())));
@@ -481,25 +484,25 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team>
         if (loginUser == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        long userId = loginUser.getUserId();
-        QueryWrapper<UserTeam> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("userId", userId);
-        List<UserTeam> userTeamList = userTeamService.list(queryWrapper);
+        List<UserTeam> userTeamList = userTeamService.list();
         if (userTeamList == null)
             return new ArrayList<>();
         List<TeamApplyVO> teamApplyVOList = new ArrayList<>();
         for (UserTeam userTeam : userTeamList) {
             Team team = this.getById(userTeam.getTeamId());
-            if (team.getT_userId() == loginUser.getUserId() && userTeam.getUserId() == loginUser.getUserId())
-                continue;
-            TeamApplyVO teamApplyVO = new TeamApplyVO();
-            BeanUtils.copyProperties(userTeam, teamApplyVO);
-            UserVO userVO = userService.getUserVO(loginUser);
-            teamApplyVO.setUser(userVO);
-            TeamQuery teamQuery = new TeamQuery();
-            teamQuery.setId(userTeam.getTeamId());
-            teamApplyVO.setTeamUserVO(this.listTeams(teamQuery, true).get(0));
-            teamApplyVOList.add(teamApplyVO);
+            if (team.getT_userId() == loginUser.getUserId() || userTeam.getUserId() == loginUser.getUserId()){
+                if (team.getT_userId() == loginUser.getUserId() && userTeam.getUserId() == loginUser.getUserId()){
+                    continue;
+                }
+                TeamApplyVO teamApplyVO = new TeamApplyVO();
+                BeanUtils.copyProperties(userTeam, teamApplyVO);
+                UserVO userVO = userService.getUserVO(userService.getById(userTeam.getUserId()));
+                teamApplyVO.setUser(userVO);
+                TeamQuery teamQuery = new TeamQuery();
+                teamQuery.setId(userTeam.getTeamId());
+                teamApplyVO.setTeamUserVO(this.listTeams(teamQuery, true).get(0));
+                teamApplyVOList.add(teamApplyVO);
+            }
         }
         return teamApplyVOList;
     }
@@ -518,7 +521,6 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team>
         if (team == null)
             throw new BusinessException(ErrorCode.NULL_ERROR, "队伍不存在");
         return team;
-
     }
 
     /*

@@ -215,6 +215,17 @@ public class TeamController {
 
     }
 
+    @PostMapping("/get/teamVO")
+    public BaseResponse<TeamUserVO> getTeamUserVOById(TeamDeleteRequest request){
+        if (request==null)
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        long teamId=request.getT_id();
+        TeamQuery teamQuery=new TeamQuery();
+        teamQuery.setId(teamId);
+        List<TeamUserVO> teamUserVOS = teamService.listTeams(teamQuery, true);
+        return ResultUtils.success(teamUserVOS.get(0));
+    }
+
     @PostMapping("/quit")
     /*
     * @Description: 退出

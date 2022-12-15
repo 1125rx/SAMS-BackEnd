@@ -34,10 +34,10 @@ class UserServiceTest {
     }
     @Test
     void testMatch(){
-        List<String> tags1=Arrays.asList("C");
+        List<String> tags1=Arrays.asList("Java","C");
         List<String> tags2=Arrays.asList("Java","C");
-        List<String> tags3=Arrays.asList("Java","C++","Python");
-        List<String> tags4=Arrays.asList("C++");
+        List<String> tags3=Arrays.asList("Java");
+        List<String> tags4=Arrays.asList("C");
         System.out.println(AlgorithmUtils.minDistance(tags1,tags2));
         System.out.println(AlgorithmUtils.minDistance(tags1,tags3));
         System.out.println(AlgorithmUtils.minDistance(tags1,tags4));

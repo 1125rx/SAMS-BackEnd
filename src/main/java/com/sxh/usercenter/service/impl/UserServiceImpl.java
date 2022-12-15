@@ -409,7 +409,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
         // 按编辑距离由小到大排序
         List<Pair<User, Long>> topUserPairList = list.stream()
-                .sorted((a, b) -> (int) (b.getValue() - a.getValue()))
+                .sorted((a, b) -> (int) (a.getValue() - b.getValue()))
                 .limit(num)
                 .toList();
         // 原本顺序的 userId 列表

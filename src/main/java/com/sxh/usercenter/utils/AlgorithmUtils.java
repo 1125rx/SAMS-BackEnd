@@ -25,6 +25,8 @@ public class AlgorithmUtils {
         if (n * m == 0) {
             return n + m;
         }
+        if (tagList1.equals(tagList2))
+            return -1;
 
         int[][] d = new int[n + 1][m + 1];
         for (int i = 0; i < n + 1; i++) {
