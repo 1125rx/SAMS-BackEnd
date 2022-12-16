@@ -24,12 +24,12 @@ public class Article implements Serializable {
     /**
      * 发布人id
      */
-    private Integer userId;
+    private long userId;
 
     /**
      * 队伍Id
      */
-    private Integer teamId;
+    private long teamId;
 
     /**
      * 正文部分

@@ -18,6 +18,6 @@ public class TeamQuitRequest implements Serializable {
     /**
      * id
      */
-    private Long t_id;
+    private long t_id;
 
 }
