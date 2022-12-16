@@ -4,9 +4,9 @@ spring:
   # DataSource Config
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/song_app
-    username: root
-    password: root
+    url: ********
+    username: ********
+    password: ********
   session:
     timeout: 86400
     store-type: redis
